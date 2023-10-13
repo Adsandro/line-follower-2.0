@@ -1,5 +1,7 @@
 #include <MFRC522.h>
 #include <SPI.h>
+#include <LiquidCrystal_I2C.h>
+#include "Motor.h"
 
 //Pinagem do Módulo MFRC522 / Leitor ondas de rádio 13.56 MHz de frequência
 #define SDA 10
@@ -7,11 +9,6 @@
 #define MOSI 11
 #define MISO 12
 #define RST 9
-
-MFRC522 leitor_mfrc522(SDA, RST);
-MFRC522::MIFARE_Key chave;
-byte buffer[18];
-byte tamanhoDoBuffer = sizeof(buffer);
 
 //Pinagem de output Módulo Ponte-H L298N
 #define ENA 6
@@ -26,68 +23,20 @@ byte tamanhoDoBuffer = sizeof(buffer);
 #define SENSOR_MID 16
 #define SENSOR_DIR 17
 
+// Objeto do Display LCD
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Um display lcd de 16x2, 0x27 é um endereço padrão do módulo I2C, pode falhar como não testei
+
+
 // Variáveis para controlar os estados dos Sensores IR a fim de identificar presença ou ausência de cor
 int estadoEsq = 0, estadoDir = 0, estadoMeio = 0;
 
+//Objetos e variaveis necessárias para o RFID (MFRC522)
+MFRC522 leitor_mfrc522(SDA, RST);
+MFRC522::MIFARE_Key chave;
+byte buffer[18];
+byte tamanhoDoBuffer = sizeof(buffer);
 
-// enum que define as velocidades padrões
-typedef enum {
-  LENTO = 50,
-  NORMAL = 150,
-  RAPIDO = 250
-} Velocidade;
-
-class Motor{
-
-  public:
-    int _inPrincipal, _inSecundario, _en; // O nPrincipal equivale ao pino nX da ponte-h que gira as rodas para a frente quando há voltagem (HIGH)
-
-    // Construtor do motor, set inicial dos pins, "Motor::" é só uma forma de referenciar escopo explicitamente a fim de evitar erros de compilação
-    Motor(int inPrincipal, int inSecundario, int en){
-      Motor::_inPrincipal = inPrincipal;
-      Motor::_inSecundario = inSecundario;
-      Motor::_en = en;
-    }
-
-    // Inicializa o modo dos pins, use no setup();
-    inicializa(){
-      pinMode(_inPrincipal, OUTPUT);
-      pinMode(_inSecundario, OUTPUT);
-      pinMode(_en, OUTPUT);
-    }
-
-    giraFrente(Velocidade v){
-      digitalWrite(_inPrincipal, HIGH);
-      digitalWrite(_inSecundario, LOW);
-      analogWrite(_en, v);
-    }
-
-    giraFrente(int v){
-      digitalWrite(_inPrincipal, HIGH);
-      digitalWrite(_inSecundario, LOW);
-      analogWrite(_en, v);
-    }
-
-    giraTras(Velocidade v){
-      digitalWrite(_inPrincipal, LOW);
-      digitalWrite(_inSecundario, HIGH);
-      analogWrite(_en, v);
-    }
-
-    giraTras(int v){
-      digitalWrite(_inPrincipal, LOW);
-      digitalWrite(_inSecundario, HIGH);
-      analogWrite(_en, v);
-    }
-
-    paraMotor(){
-      digitalWrite(_inSecundario, LOW);
-      digitalWrite(_inPrincipal, LOW);
-      analogWrite(_en, 255);
-    }
-
-};
-
+// Objetos dos motores
 Motor mtDir(IN1, IN2, ENA), mtEsq(IN4, IN3, ENB);
 
 void frente(){
@@ -187,6 +136,13 @@ MFRC522::StatusCode leCartaoRFID(byte setor, byte enderecoTrailerBlock, byte end
   return status;
 }
 
+// Max de 16 caracteres !!!!
+void escreveEmPosicao(String frase, int coordX, int coordY){
+  lcd.setCursor(coordX, coordY);
+  lcd.print(frase);
+}
+
+
 void setup(){
 
   Serial.begin(9600);
@@ -201,6 +157,8 @@ void setup(){
 
   SPI.begin();
   leitor_mfrc522.PCD_Init();
+
+  lcd.init();
 
   // Aqui é definida que a chave possui o valor FFFFFFFFFFFF, chave padrão para acesso de um setor da memória do cartão
   for (byte i = 0; i < 6; i++) {
