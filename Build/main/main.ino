@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <LiquidCrystal_I2C.h>
 #include "Motor.h"
+#include "Pilha.h"
 
 //Pinagem do Módulo MFRC522 / Leitor ondas de rádio 13.56 MHz de frequência
 #define SDA 10
@@ -26,9 +27,11 @@
 // Objeto do Display LCD
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Um display lcd de 16x2, 0x27 é um endereço padrão do módulo I2C, pode falhar como não testei
 
-
 // Variáveis para controlar os estados dos Sensores IR a fim de identificar presença ou ausência de cor
 int estadoEsq = 0, estadoDir = 0, estadoMeio = 0;
+
+// Pilha de dados
+Pilha * pilha = criaPilha();
 
 //Objetos e variaveis necessárias para o RFID (MFRC522)
 MFRC522 leitor_mfrc522(SDA, RST);
@@ -142,11 +145,30 @@ void escreveEmPosicao(String frase, int coordX, int coordY){
   lcd.print(frase);
 }
 
+void dumpParaLCD()
+{
+ if(pilha->primeiro)
+  {
+    char buffercpy[16];
+    int posX = 0;
+    int posY = 0;
+    while(pilha->primeiro)
+    {
+        desempilha(pilha, buffercpy);
+        Serial.println(buffercpy);
+        escreveEmPosicao(buffercpy, posX, posY);
+        posX = strlen(buffercpy) + 1;
+    }
+  }
+}
+
 
 void setup(){
 
   Serial.begin(9600);
   while(!Serial);
+
+  Serial.println("Monitor Serial conectado");
 
   pinMode(SENSOR_ESQ, INPUT);
   pinMode(SENSOR_MID, INPUT);
@@ -159,22 +181,32 @@ void setup(){
   leitor_mfrc522.PCD_Init();
 
   lcd.init();
+  lcd.clear();
+  lcd.backlight();
+  
 
   // Aqui é definida que a chave possui o valor FFFFFFFFFFFF, chave padrão para acesso de um setor da memória do cartão
   for (byte i = 0; i < 6; i++) {
         chave.keyByte[i] = 0xFF;
     }
+
+    //pilha = empilha(pilha, "Ola");
+    //pilha = empilha(pilha, "Mundo");
+
 }
 
 
 void loop(){
+
   movimentaCarro();
 
+  dumpParaLCD();
+
   if ( ! leitor_mfrc522.PICC_IsNewCardPresent())
-        return;
+    return;
 
   if ( ! leitor_mfrc522.PICC_ReadCardSerial())
-      return;
+    return;
 
   /*
 
@@ -196,6 +228,9 @@ void loop(){
   byte enderecoBloco = 4;
   MFRC522::StatusCode status;
 
+  leCartaoRFID(setor, enderecoBlocoDeTrailer, enderecoBloco);
+  dumpBytesParaSerial(buffer, 18);
 
+  //Converter Bytes para Char e fazer dump para o lcd
   
 }
