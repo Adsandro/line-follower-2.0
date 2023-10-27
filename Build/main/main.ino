@@ -200,7 +200,7 @@ void loop(){
 
   movimentaCarro();
 
-  dumpParaLCD();
+  //dumpParaLCD();
 
   if ( ! leitor_mfrc522.PICC_IsNewCardPresent())
     return;

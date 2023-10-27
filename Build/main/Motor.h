@@ -3,8 +3,8 @@
 
 typedef enum {
   LENTO = 50,
-  NORMAL = 150,
-  RAPIDO = 250
+  NORMAL = 120,
+  RAPIDO = 160
 } Velocidade;
 
 
