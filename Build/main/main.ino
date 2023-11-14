@@ -39,13 +39,13 @@ UltraSonicDistanceSensor distanceSensor(triggerPin, echoPin);
 Motor mtEsq(IN1, IN2, ENA), mtDir(IN4, IN3, ENB);
 
 void frente(){
-  mtDir.giraFrente(110);
-  mtEsq.giraFrente(100);
+  mtDir.giraFrente(90);
+  mtEsq.giraFrente(90);
 }
 
 void tras(){
-  mtDir.giraTras(110);
-  mtEsq.giraTras(100);
+  mtDir.giraTras(90);
+  mtEsq.giraTras(90);
 }
 
 void para(){
@@ -54,13 +54,17 @@ void para(){
 }
 
 void direita(){
-  mtDir.giraFrente(100);
-  mtEsq.giraFrente(130);
+  //mtDir.paraMotor();
+  mtDir.giraTras(95);
+  //mtDir.giraFrente(100);
+  mtEsq.giraFrente(95);
 }
 
 void esquerda(){
-  mtDir.giraFrente(140);
-  mtEsq.giraFrente(100);
+  mtDir.giraFrente(95);
+  //mtEsq.giraFrente(100);
+  // mtEsq.paraMotor();
+  mtEsq.giraTras(95);
 }
 
 
@@ -77,7 +81,7 @@ void movimentaCarro(){
     frente();
   }
   else if(estadoEsq == 1 &  estadoMeio == 1 &  estadoDir == 0){
-    esquerda();
+    direita();
   }
   else if(estadoEsq == 1 &  estadoMeio == 0 &  estadoDir == 1){
     frente();  
@@ -86,7 +90,7 @@ void movimentaCarro(){
     frente();
   }
   else if(estadoEsq == 0 &  estadoMeio == 1 &  estadoDir == 1){
-    direita();
+    esquerda();
   }
   else if(estadoEsq == 0 &  estadoMeio == 1 &  estadoDir == 0){
     frente();
@@ -124,11 +128,11 @@ void movimentaCarro2()
   }
   else if (estadoEsq == 1 & estadoDir == 0)
   {
-    direita();
+   esquerda(); 
   }
   else if (estadoEsq == 0 & estadoDir == 1)
   {
-    esquerda();
+    direita();
   }
   else if (estadoEsq == 1 & estadoDir == 1)
   {
@@ -159,6 +163,6 @@ void setup()
 void loop()
 {
 
-  movimentaCarro();
+  movimentaCarro2();
   
 }
