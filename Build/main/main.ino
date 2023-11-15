@@ -19,10 +19,10 @@
 #define ENB 5
 
 #define SENSOR_ESQ 17 
-#define SENSOR_MID 16 
-#define SENSOR_DIR 15 
+#define SENSOR_DIR 16 
+//#define SENSOR_MID 15 
 
-#define triggerPin 1
+#define triggerPin 15
 #define echoPin 3
 
 int estadoEsq = 0, estadoDir = 0, estadoMeio = 0;
@@ -54,7 +54,7 @@ void setup()
   mfrc522.PCD_Init();
 
   pinMode(SENSOR_ESQ, INPUT);
-  pinMode(SENSOR_MID, INPUT);
+//  pinMode(SENSOR_MID, INPUT);
   pinMode(SENSOR_DIR, INPUT);
 
   mtDir.inicializa();
@@ -80,7 +80,7 @@ void loop()
     }
   }
 
-  movimentaCarro();
+  movimentaCarro2();
 
   leRFID();
 }
@@ -105,17 +105,19 @@ void para()
 
 void direita()
 {
-  mtDir.giraTras(95);
+  mtDir.giraFrente(35);
+  //mtDir.giraTras(95);
   mtEsq.giraFrente(95);
 }
 
 void esquerda()
 {
+  mtEsq.giraFrente(40);
   mtDir.giraFrente(95);
-  mtEsq.giraTras(95);
+  //mtEsq.giraTras(95);
 }
 
-
+/*
 void movimentaCarro()
 {
   int distancia = distanceSensor.measureDistanceCm();
@@ -123,7 +125,8 @@ void movimentaCarro()
   estadoDir = digitalRead(SENSOR_DIR);
   estadoMeio = digitalRead(SENSOR_MID);
 
-  if(distancia <= 6) 
+  Serial.println(distancia);
+  if(distancia != -1) 
     return;
 
   if(estadoEsq == 1 & estadoMeio == 1 & estadoDir == 1)
@@ -158,7 +161,7 @@ void movimentaCarro()
   {
     frente();
   }
-}
+}*/
 
 void movimentaCarro2()
 {
@@ -166,8 +169,13 @@ void movimentaCarro2()
   estadoEsq = digitalRead(SENSOR_ESQ);
   estadoDir = digitalRead(SENSOR_DIR);
 
-  if(distancia <= 6) 
+  Serial.println(distancia);
+  if(distancia <= 5)
+  {
+    para();
     return;
+  } 
+    
 
   if(estadoEsq == 0 & estadoDir == 0)
   {
@@ -175,11 +183,11 @@ void movimentaCarro2()
   }
   if (estadoEsq == 1 & estadoDir == 0)
   {
-   esquerda(); 
+    direita(); 
   }
   if (estadoEsq == 0 & estadoDir == 1)
   {
-    direita();
+    esquerda();
   }
   if (estadoEsq == 1 & estadoDir == 1)
   {
