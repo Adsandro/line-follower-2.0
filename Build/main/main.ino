@@ -87,8 +87,8 @@ void loop()
 
 void frente()
 {
-  mtDir.giraFrente(90);
-  mtEsq.giraFrente(90);
+  mtDir.giraFrente(80);
+  mtEsq.giraFrente(80);
 }
 
 void tras()
@@ -107,13 +107,13 @@ void direita()
 {
   mtDir.giraFrente(35);
   //mtDir.giraTras(95);
-  mtEsq.giraFrente(95);
+  mtEsq.giraFrente(120);
 }
 
 void esquerda()
 {
-  mtEsq.giraFrente(40);
-  mtDir.giraFrente(95);
+  mtEsq.giraFrente(35);
+  mtDir.giraFrente(120);
   //mtEsq.giraTras(95);
 }
 
@@ -170,7 +170,7 @@ void movimentaCarro2()
   estadoDir = digitalRead(SENSOR_DIR);
 
   Serial.println(distancia);
-  if(distancia <= 5)
+  if(distancia <= 5 && distancia > -1)
   {
     para();
     return;
